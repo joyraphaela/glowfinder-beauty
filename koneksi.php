@@ -1,14 +1,15 @@
 <?php
 // ============================================================
 // koneksi.php — Database connection via PDO
-// GlowFinder Beauty — Mode: Internal Cloud Railway
+// GlowFinder Beauty — Mode: Auto-Detect Environment (Railway)
 // ============================================================
 
-$db_host = 'mysql.railway.internal'; // Menggunakan jalur khusus internal server
-$db_port = '3306';                   // Port standar internal
-$db_name = 'railway';               
-$db_user = 'root';                  
-$db_pass = 'PKXFfdwzhJWggXDWcrxKPWhwywgehDVb'; 
+// Sistem akan otomatis mengambil data dari tab Variables di Railway
+$db_host = getenv('MYSQLHOST')     ?: 'localhost';
+$db_port = getenv('MYSQLPORT')     ?: '3306';
+$db_name = getenv('MYSQLDATABASE') ?: 'skincare_db';
+$db_user = getenv('MYSQLUSER')     ?: 'root';
+$db_pass = getenv('MYSQLPASSWORD') ?: '';
 
 $dsn = "mysql:host=" . $db_host . ";port=" . $db_port . ";dbname=" . $db_name . ";charset=utf8mb4";
 
