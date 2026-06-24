@@ -1,14 +1,14 @@
 <?php
 // ============================================================
 // koneksi.php — Database connection via PDO
-// GlowFinder Beauty — Mode: Hardcode Cloud
+// GlowFinder Beauty — Mode: Internal Cloud Railway
 // ============================================================
 
-$db_host = 'thomas.proxy.rlwy.net'; // Alamat Publik Database Railway
-$db_port = '14422';                 // Port Publik Database
-$db_name = 'railway';               // Nama database bawaan Railway
+$db_host = 'mysql.railway.internal'; // Menggunakan jalur khusus internal server
+$db_port = '3306';                   // Port standar internal
+$db_name = 'railway';               
 $db_user = 'root';                  
-$db_pass = 'PKXFfdwzhJWggXDWcrxKPWhwywgehDVb'; // Password aslimu
+$db_pass = 'PKXFfdwzhJWggXDWcrxKPWhwywgehDVb'; 
 
 $dsn = "mysql:host=" . $db_host . ";port=" . $db_port . ";dbname=" . $db_name . ";charset=utf8mb4";
 
