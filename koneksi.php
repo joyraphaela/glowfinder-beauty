@@ -1,15 +1,14 @@
 <?php
 // ============================================================
 // koneksi.php — Database connection via PDO
-// GlowFinder Beauty — Skincare Recommendation System
+// GlowFinder Beauty — Mode: Hardcode Cloud
 // ============================================================
 
-// Sistem membaca variabel cloud Railway otomatis. Jika gagal, kembali ke mode XAMPP lokal.
-$db_host = getenv('MYSQLHOST')     ?: 'localhost';
-$db_port = getenv('MYSQLPORT')     ?: '3306';
-$db_name = getenv('MYSQLDATABASE') ?: 'skincare_db';
-$db_user = getenv('MYSQLUSER')     ?: 'root';
-$db_pass = getenv('MYSQLPASSWORD') ?: '';
+$db_host = 'thomas.proxy.rlwy.net'; // Alamat Publik Database Railway
+$db_port = '14422';                 // Port Publik Database
+$db_name = 'railway';               // Nama database bawaan Railway
+$db_user = 'root';                  
+$db_pass = 'PKXFfdwzhJWggXDWcrxKPWhwywgehDVb'; // Password aslimu
 
 $dsn = "mysql:host=" . $db_host . ";port=" . $db_port . ";dbname=" . $db_name . ";charset=utf8mb4";
 
@@ -28,3 +27,4 @@ try {
         'message' => 'Koneksi database gagal: ' . $e->getMessage()
     ]));
 }
+?>
