@@ -1,7 +1,7 @@
 <?php
 // ============================================================
 // result.php — Halaman Hasil Rekomendasi GlowFinder Beauty
-// Integrasi: koneksi.php + Logic.php (TF-IDF & Cosine Similarity)
+// Integrasi Sempurna: Fitur Tag Lengkap + Teks Banner Custom Baru
 // ============================================================
 
 require_once __DIR__ . '/koneksi.php';
@@ -116,13 +116,9 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
             box-shadow: 0 5px 10px rgba(255,94,120,0.4);
         }
 
-        .step-badge { display: inline-block; padding: 6px 14px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; margin-bottom: 12px; }
-        .step-wash { background: #e3f2fd; color: #1565c0; }
-        .step-toner { background: #e8f5e9; color: #2e7d32; }
-        .step-serum { background: #fff3e0; color: #e65100; }
-
+        /* Explainable AI (XAI) Box */
         .xai-box {
-            background: #f8f9fa; border-left: 4px solid var(--primary);
+            background: #fff9fa; border-left: 4px solid var(--primary);
             padding: 12px 15px; border-radius: 0 8px 8px 0; font-size: 0.85rem; color: #555;
             margin-bottom: 15px; line-height: 1.5;
         }
@@ -130,8 +126,16 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
 
         .card-body { padding: 0 25px 25px 25px; display: flex; flex-direction: column; flex-grow: 1; }
         .brand-name { font-size: 0.8rem; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-        .product-name { font-weight: 800; font-size: 1.2rem; color: #2d3436; line-height: 1.3; margin-bottom: 15px; }
-        .desc-text { font-size: 0.9rem; color: #636e72; margin-bottom: 20px; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-name { font-weight: 800; font-size: 1.2rem; color: #2d3436; line-height: 1.3; margin-bottom: 12px; }
+        
+        /* Tags Row Style (Rating, BPOM, Tipe) */
+        .tags-row { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 15px; }
+        .tag-pill { font-size: 0.7rem; background: #e8ecef; color: #6c757d; padding: 4px 10px; border-radius: 6px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+        .tag-pill.bpom { background: #e8f5e9; color: #2e7d32; }
+        .tag-pill.type { background: #f3e5f5; color: #7b1fa2; }
+        .tag-pill.rating-pill { background: #fffde7; color: #f57f17; }
+
+        .desc-text { font-size: 0.9rem; color: #636e72; margin-bottom: 20px; flex-grow: 1; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 
         /* Price Styling */
         .price-section { margin-top: auto; margin-bottom: 15px; }
@@ -147,7 +151,7 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
         .dev-mode-data { 
             display: none; background: #2d3436; color: #00ff00; padding: 10px; 
             border-radius: 8px; font-family: monospace; font-size: 0.75rem; 
-            margin-bottom: 15px; border: 1px solid #00ff00;
+            margin-bottom: 15px; border: 1px solid #00ff00; text-align: left;
         }
 
         .algo-banner { background: linear-gradient(135deg, #e3f2fd, #fce4ec); border-radius: 16px; padding: 16px 24px; margin-bottom: 40px; display: flex; align-items: center; gap: 14px; font-size: 0.85rem; color: #555; }
@@ -188,11 +192,11 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
 
         <?php if (!empty($recommendations)): ?>
 
-       <div class="algo-banner">
+        <div class="algo-banner">
             <i class="bi bi-stars fs-4 text-primary"></i>
             <div>
-                <strong>Personalized Match</strong> &mdash; 
-               Ini dia match sempurnamu! Kita udah cariin ingredients yang paling jago buat hempas masalah kulitmu.
+                <strong>Ini dia match sempurnamu!</strong> &mdash; 
+                Kita udah cariin ingredients yang paling jago buat hempas masalah kulitmu.
             </div>
         </div>
 
@@ -203,7 +207,7 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
                     $normalPrice   = isset($item['normal_price']) ? (float)$item['normal_price'] : 0;
                     $discountPrice = isset($item['discount_price']) ? (float)$item['discount_price'] : 0;
                     
-                    if ($discountPrice <= 0) $discountPrice = $normalPrice; // Fallback jika tidak ada diskon
+                    if ($discountPrice <= 0) $discountPrice = $normalPrice; 
                     
                     $hasDiscount = ($normalPrice > $discountPrice);
                     $savings     = $normalPrice - $discountPrice;
@@ -213,15 +217,14 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
                     $priceNormalDisplay = 'Rp ' . number_format($normalPrice, 0, ',', '.');
                     $savingsDisplay     = 'Rp ' . number_format($savings, 0, ',', '.');
 
+                    // Limit Deskripsi
                     $desc = htmlspecialchars(trim($item['description_product'] ?? ''));
+                    if (mb_strlen($desc) > 220) {
+                        $desc = mb_substr($desc, 0, 220) . '…';
+                    }
+                    
                     $rank = $index + 1;
-
-                    // Fitur Smart Routine
-                    $stepClass = ''; $stepText = '';
-                    $ptype = strtolower($item['product_type'] ?? '');
-                    if ($ptype === 'facial wash') { $stepClass = 'step-wash'; $stepText = '💧 cleanser'; }
-                    elseif ($ptype === 'toner') { $stepClass = 'step-toner'; $stepText = '🍃 toner'; }
-                    elseif ($ptype === 'serum') { $stepClass = 'step-serum'; $stepText = '✨ treatment'; }
+                    $typeLabel = ucfirst($item['product_type'] ?? '');
 
                     // Fitur Explainable AI
                     $explanation = generateSmartExplanation($item['ingredients_list'], $userConcernsStr);
@@ -236,12 +239,24 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
 
                         <div class="card-body">
                             
-                            <?php if($stepText): ?>
-                                <div><span class="step-badge <?= $stepClass ?>"><?= $stepText ?></span></div>
-                            <?php endif; ?>
-
                             <div class="brand-name"><?= htmlspecialchars($item['brand'] ?? '') ?></div>
                             <div class="product-name"><?= htmlspecialchars($item['product_name'] ?? '') ?></div>
+
+                            <div class="tags-row">
+                                <?php if (!empty($item['bpom_id']) && $item['bpom_id'] !== 'NA'): ?>
+                                <span class="tag-pill bpom">
+                                    <i class="bi bi-shield-check"></i> BPOM
+                                </span>
+                                <?php endif; ?>
+                                
+                                <span class="tag-pill type"><?= $typeLabel ?></span>
+                                
+                                <?php if (!empty($item['rating']) && (float)$item['rating'] > 0): ?>
+                                <span class="tag-pill rating-pill">
+                                    <i class="bi bi-star-fill"></i> <?= number_format((float)$item['rating'], 1) ?>
+                                </span>
+                                <?php endif; ?>
+                            </div>
 
                             <?php if($explanation): ?>
                                 <div class="xai-box">
@@ -298,6 +313,10 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
 
     </div>
 
+    <footer class="text-center pb-4 pt-2 text-muted small">
+        &copy; 2025 GlowFinder Beauty &mdash;
+    </footer>
+
     <script>
         let clickCount = 0;
         document.getElementById('secretLogo').addEventListener('click', function(e) {
@@ -306,7 +325,7 @@ function generateSmartExplanation($ingredients_list, $concerns_string) {
             if(clickCount === 3) {
                 const devElements = document.querySelectorAll('.dev-mode-data');
                 devElements.forEach(el => el.style.display = 'block');
-                alert("🔓 DEVELOPER MODE TERBUKA!\n\nSkor mentah Cosine Similarity (beserta metrik algoritma) kini ditampilkan pada setiap kartu produk untuk keperluan validasi penguji.");
+                alert("🔓 DEVELOPER MODE TERBUKA!\n\nSkor mentah Cosine Similarity kini diaktifkan untuk membantu proses validasi data pengujian sistem.");
                 clickCount = 0;
             }
         });
